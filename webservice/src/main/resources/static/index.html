@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OQueBot</title>
+    <link rel="icon" href="message-icon.png" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <style>
+        #chatHistory {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            padding: 10px 10px;
+            border-radius: 20px;
+            margin: 5px;
+            max-width: 60%;
+        }
+
+        .user {
+            align-self: flex-end;
+            background-color: #0dcaf0;
+            color: white;
+        }
+
+        .bot {
+            align-self: flex-start;
+            background-color: #e5e5ea;
+            color: black;
+        }
+    </style>
+</head>
+
+<body class="bg-info">
+    <div class="container bg-light w-md-50 w-75 py-5">
+        <div class="col-12">
+            <h1 class="text-center text-info pb-5">Say Something...</h1>
+            <div class="d-flex justify-content-center" id="chatHistory"></div>
+            <div class="container justify-content-center pt-5">
+                <div class="row">
+                    <div class="col-12 col-md-9">
+                        <input class="form-control" type="text" id="userInput" placeholder="Type your message here...">
+                    </div>
+                    <div class="col-12 col-md-3 pt-3 pt-md-0">
+                        <button class="btn btn-info" onclick="sendMessage()">Send</button>
+                        <button class="btn btn-secondary" onclick="clearMessages()">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function appendMessage(sender, message) {
+            const chatHistory = document.getElementById('chatHistory');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messageElement.classList.add('message');
+            if (sender === 'Você') {
+                messageElement.classList.add('user');
+            } else {
+                messageElement.classList.add('bot');
+            }
+            chatHistory.appendChild(messageElement);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function sendMessage() {
+            var userInput = document.getElementById('userInput').value;
+
+            appendMessage('Você', userInput);
+
+            fetch('/chat/message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userInput),
+            })
+                .then(response => response.text())
+                .then(data => {
+                    appendMessage('Bot', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+
+            document.getElementById('userInput').value = '';
+        }
+
+        function clearMessages() {
+            document.getElementById('chatHistory').innerHTML = '';
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+
+</body>
+
+</html>
